@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Questões Erradas</title>
+</head>
+<body>
+    <h1>Registrar Questões Erradas</h1>
+
+    <form id="questions-form">
+        <div id="questions-container">
+            <div class="question-item">
+                <input type="text" name="questao" placeholder="Questão" required />
+                <input type="text" name="resposta" placeholder="Resposta correta" required />
+                <input type="text" name="materia" placeholder="Matéria" required />
+                <input type="text" name="erro" placeholder="Motivo do erro" required />
+            </div>
+        </div>
+
+        <button type="button" id="add-question">Adicionar Outra Questão</button><br><br>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        const form = document.getElementById("questions-form");
+        const container = document.getElementById("questions-container");
+        const responseDiv = document.getElementById("response");
+
+        document.getElementById("add-question").addEventListener("click", () => {
+            const div = document.createElement("div");
+            div.className = "question-item";
+            div.innerHTML = `
+                <input type="text" name="questao" placeholder="Questão" required />
+                <input type="text" name="resposta" placeholder="Resposta correta" required />
+                <input type="text" name="materia" placeholder="Matéria" required />
+                <input type="text" name="erro" placeholder="Motivo do erro" required />
+            `;
+            container.appendChild(div);
+        });
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const questionItems = document.querySelectorAll(".question-item");
+            responseDiv.textContent = "";
+
+            for (let item of questionItems) {
+                const body = {
+                    questao: item.querySelector('[name="questao"]').value,
+                    resposta: item.querySelector('[name="resposta"]').value,
+                    materia: item.querySelector('[name="materia"]').value,
+                    erro: item.querySelector('[name="erro"]').value
+                };
+
+                try {
+                    const res = await fetch("/cadastro/api/questions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(body)
+                    });
+
+                    const data = await res.json();
+                    responseDiv.textContent += "Resposta do servidor: " + JSON.stringify(data) + "\n";
+                } catch (err) {
+                    console.error(err);
+                    responseDiv.textContent += "Erro ao enviar!\n";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
