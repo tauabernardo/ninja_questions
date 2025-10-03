@@ -4,6 +4,7 @@ from ninja import NinjaAPI
 from .models import Question
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
+from ninja import UploadedFile
 from django.http import HttpRequest  
 import orjson
 from ninja.parser import Parser
@@ -39,6 +40,7 @@ def listar_consulta(request, id: int):
     materia: str
     erro: str'''
 
+
 class QuestionSchema(ModelSchema):
     class Config:
         model = Question
@@ -48,3 +50,11 @@ class QuestionSchema(ModelSchema):
 def questao_criar(request, questions: QuestionSchema):
     questao = Question.objects.create(**questions.dict())
     return model_to_dict(questao)
+
+
+@api.post('/file')
+def file_upload(request, file: UploadedFile):
+    content = file.read()
+    print(content)
+    print(len(content))
+    return {"size": len(content)}
