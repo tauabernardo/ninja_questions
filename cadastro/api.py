@@ -1,4 +1,5 @@
 from ninja import Schema
+from ninja.orm import ModelSchema
 from ninja import NinjaAPI
 from .models import Question
 from django.forms.models import model_to_dict
@@ -24,17 +25,26 @@ def listar(request):
 
 @api.get('questions/{id}')
 def listar_questao(request, id: int):
-    question = get_object_or_404(Question, id=id)
-    return model_to_dict(question)
+    questao = get_object_or_404(Question, id=id)
+    return model_to_dict(questao)
 
 @api.get('question_consulta/')
 def listar_consulta(request, id: int):
-    question = get_object_or_404(Question, id=id)
-    return model_to_dict(question)
+    questao = get_object_or_404(Question, id=id)
+    return model_to_dict(questao)
 
-class QuestionSchema(Schema):
+'''class QuestionSchema(Schema):
     questao: str
     resposta: str
     materia: str
-    erro: str
+    erro: str'''
 
+class QuestionSchema(ModelSchema):
+    class Config:
+        model = Question
+        model_fields = "__all__"
+
+@api.post('/questions', response=QuestionSchema)
+def questao_criar(request, questions: QuestionSchema):
+    questao = Question.objects.create(**questions.dict())
+    return model_to_dict(questao)
